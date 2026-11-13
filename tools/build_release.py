@@ -45,7 +45,7 @@ from typing import Iterable
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bundle_runtime  # noqa: E402 - sibling tool, imported after sys.path
-DEFAULT_GITHUB = "https://github.com/OWNER/REPO"
+DEFAULT_GITHUB = "https://github.com/Anassh780/Clean-up-tool"
 PLACEHOLDER = "OWNER/REPO"
 MANIFEST_NAME = "latest.json"
 SCHEMA = 1
@@ -534,7 +534,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--manifest-url",
         help="URL baked into the build and advertised in the summary "
-        "(default: $SWEEP_MANIFEST_URL, then the GitHub placeholder)",
+        "(default: $SWEEP_MANIFEST_URL, then the official repository)",
     )
     parser.add_argument(
         "--base-url",
