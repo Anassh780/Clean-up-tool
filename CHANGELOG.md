@@ -4,6 +4,16 @@ All notable changes to Sweep are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 `MAJOR.MINOR.PATCH` versions with `-beta.N` / `-rc.N` prereleases.
 
+## 1.1.1 — 2026-11-13
+
+### Changed
+
+- **Updates are on for every copy.** A source checkout, an older zip, or any
+  build without a baked `_build_info.py` now falls back to the official release
+  feed instead of reporting "No update source is configured". The only opt-out
+  is the existing **Check for updates automatically** setting, so a missing
+  address can no longer leave a user without updates.
+
 ## 1.1.0 — 2026-11-13
 
 ### Added

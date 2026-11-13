@@ -36,7 +36,7 @@ The result is one of these:
 | `available` | A newer release exists. **Install** is offered. |
 | `up_to_date` | The published version is not newer than this copy. |
 | `disabled` | "Check for updates" is off in Settings. No request was made. |
-| `unconfigured` | This copy has no manifest address (common in a source checkout). No request was made. |
+| `unconfigured` | No feed at all was found (only when a build blanks it or a test forces it; every normal copy uses the official feed). No request was made. |
 | `skipped` | A newer release exists, but you chose **Skip this version**. It stops being promoted; the next release is offered normally. |
 | `error` | The check could not finish. The message says what failed, why, and what to try. |
 
@@ -270,7 +270,7 @@ Windows error messages — nothing about you or your files.
 
 | What you see | What it means | What to do |
 | --- | --- | --- |
-| "No update source is configured" | This copy has no manifest URL. A source checkout still carries the `OWNER/REPO` placeholder, so Sweep refuses to fire a request at a dead address. | Set the address in **Settings → Updates**, in `config.json` under `updates.manifest_url`, or with the `SWEEP_UPDATE_URL` environment variable. Release builds ship with one baked in. |
+| "No update source is configured" | This copy has no manifest URL at all, which should only happen if a build deliberately blanked it or a test forced it. Normal copies fall back to the official feed. | Set the address in **Settings → Updates**, in `config.json` under `updates.manifest_url`, or with the `SWEEP_UPDATE_URL` environment variable. |
 | "The update server answered HTTP 404" | The manifest is not published at that address, or the release has no `latest.json` asset yet. | Open the URL in a browser. It must be the raw JSON, normally `…/releases/latest/download/latest.json`. Rebuild and upload `latest.json`. |
 | "The download did not match its checksum" | The zip was corrupted or replaced in transit, or the manifest's `sha256` is wrong. | Do not install it. Try the download again. If it repeats, compare the file's SHA-256 with the manifest and regenerate the manifest. |
 | "Sweep cannot replace its own files" | The install folder is not writable by your user — typically `C:\Program Files`, a read-only USB stick, or a folder owned by another account. | Move the Sweep folder somewhere under your profile (for example `Documents\Sweep`) and update again, or run Sweep as administrator. |

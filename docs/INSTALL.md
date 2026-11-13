@@ -248,10 +248,12 @@ specific one. The web interface is:
 py -3 main.py web
 ```
 
-Source checkouts have no baked-in update manifest, so **Settings → Updates** will
-say "No update source is configured" until you give it one. That is deliberate:
-a checkout should not phone home. Set `updates.manifest_url` in `config.json`,
-use the `SWEEP_UPDATE_URL` environment variable, or paste the URL into Settings.
+Every copy checks the official release feed by default, including a source
+checkout, so **Settings → Updates** works with no setup. To point a fork or a
+test build somewhere else, set `updates.manifest_url` in `config.json`, use the
+`SWEEP_UPDATE_URL` environment variable, or paste the URL into Settings. The
+opt-out is the **Check for updates automatically** toggle (or
+`updates.enabled = false`); a missing address is never treated as an opt-out.
 
 ## Installation troubleshooting
 

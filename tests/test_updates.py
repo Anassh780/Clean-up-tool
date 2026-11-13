@@ -32,6 +32,12 @@ sys.path.insert(0, str(ROOT / "vendor"))
 from sweep_app import config, paths, updates  # noqa: E402
 from sweep_app import updater  # noqa: E402
 
+# Keep the suite hermetic: ``temp_home`` restores the "no feed" placeholder so a
+# check never reaches the real official manifest.
+PLACEHOLDER_MANIFEST = (
+    "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+)
+
 
 # --------------------------------------------------------------------------- #
 # helpers
@@ -50,6 +56,9 @@ def temp_home():
             "UPDATES": paths.UPDATES,
         }
         old_local = os.environ.get("LOCALAPPDATA")
+        old_default = updates.DEFAULT_MANIFEST_URL
+        old_url = os.environ.pop("SWEEP_UPDATE_URL", None)
+        updates.DEFAULT_MANIFEST_URL = PLACEHOLDER_MANIFEST
         paths.SWEEP_HOME = sweep_home
         paths.QUARANTINE = sweep_home / "quarantine"
         paths.LOGS = sweep_home / "logs"
@@ -63,6 +72,9 @@ def temp_home():
         finally:
             for name, value in old.items():
                 setattr(paths, name, value)
+            updates.DEFAULT_MANIFEST_URL = old_default
+            if old_url is not None:
+                os.environ["SWEEP_UPDATE_URL"] = old_url
             if old_local is None:
                 os.environ.pop("LOCALAPPDATA", None)
             else:
@@ -255,6 +267,13 @@ class ManifestTests(unittest.TestCase):
 # --------------------------------------------------------------------------- #
 # check
 # --------------------------------------------------------------------------- #
+class SourceTests(unittest.TestCase):
+    def test_official_feed_is_the_default(self):
+        # No ``_build_info.py`` in a checkout: the copy still knows where to ask.
+        self.assertEqual(updates.DEFAULT_MANIFEST_URL, updates.OFFICIAL_MANIFEST_URL)
+        self.assertIn("Anassh780/Clean-up-tool", updates.DEFAULT_MANIFEST_URL)
+
+
 class CheckTests(unittest.TestCase):
     def test_unconfigured(self):
         with temp_home():

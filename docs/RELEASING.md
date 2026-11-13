@@ -14,8 +14,11 @@ Two files that belong together:
 | `dist/latest.json` | the manifest the app fetches: version, download URL, size, SHA-256, notes, channel |
 
 The zip's `_build_info.py` is written **into the archive only**. It carries the
-manifest URL, so a shipped copy knows where to look for updates without any
-setup, while a source checkout keeps saying "No update source is configured".
+manifest URL, so a fork or a beta channel can point its build at a different
+feed without changing code. Builds without that stamp -- a source checkout, an
+older zip, anything still carrying `OWNER/REPO` -- fall back to the official
+feed in `sweep_app/updates.py`, so every copy can check for updates with no
+setup.
 
 `tools/build_release.py` produces both, and `--verify` proves the result runs.
 

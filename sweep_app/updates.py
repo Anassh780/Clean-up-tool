@@ -44,20 +44,26 @@ from . import __version__, config, paths
 # --------------------------------------------------------------------------- #
 # constants
 # --------------------------------------------------------------------------- #
-# A release build injects ``sweep_app/_build_info.py`` with the real manifest
-# URL, so shipped copies find their own updates with no setup. A source
-# checkout falls back to the placeholder below, which is reported as
-# "unconfigured" rather than firing a request at a dead address.
+# Every copy checks for updates with no setup. A release build can stamp a
+# different feed into ``sweep_app/_build_info.py`` (a fork, or a beta channel);
+# without that stamp -- a source checkout, an older zip, a build that still
+# carries the ``OWNER/REPO`` placeholder -- the official feed below is used.
+# The opt-out is the explicit ``updates.enabled = false`` setting, never a
+# missing address, so nobody is silently left without updates.
+OFFICIAL_MANIFEST_URL = (
+    "https://github.com/Anassh780/Clean-up-tool/releases/latest/download/latest.json"
+)
 try:  # pragma: no cover - only exists in built releases
     from ._build_info import MANIFEST_URL as _BUILT_MANIFEST_URL  # type: ignore[attr-defined]
 except Exception:  # noqa: BLE001 - a missing build stamp is normal in a checkout
     _BUILT_MANIFEST_URL = ""
 
+_PLACEHOLDER = "OWNER/REPO"
 DEFAULT_MANIFEST_URL = (
     _BUILT_MANIFEST_URL
-    or "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+    if _BUILT_MANIFEST_URL and _PLACEHOLDER not in _BUILT_MANIFEST_URL
+    else OFFICIAL_MANIFEST_URL
 )
-_PLACEHOLDER = "OWNER/REPO"
 
 USER_AGENT = f"Sweep/{__version__} (+local update check)"
 MAX_MANIFEST_BYTES = 1024 * 1024
@@ -267,9 +273,10 @@ def install_kind() -> str:
 def resolve_source(manifest_url: str | None = None) -> tuple[str, bool]:
     """Return ``(url, configured)``.
 
-    Order: explicit argument, saved setting, ``SWEEP_UPDATE_URL``, built-in
-    default. A build that still carries the ``OWNER/REPO`` placeholder is
-    reported as unconfigured instead of firing a request at a dead URL.
+    Order: explicit argument, saved setting, ``SWEEP_UPDATE_URL``, then the
+    build's stamped feed or the official one. The placeholder check only fires
+    when a test (or a deliberately blanked build) sets the default back to
+    ``OWNER/REPO``; ordinary copies are always configured.
     """
     if manifest_url:
         return str(manifest_url).strip(), True
