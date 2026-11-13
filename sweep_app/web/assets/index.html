@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="sweep-token" content="__SWEEP_TOKEN__">
+  <meta name="sweep-version" content="__SWEEP_VERSION__">
+  <meta name="description" content="Sweep — a local Windows cleanup console. Measure junk, review processes, remove leftovers. Everything stays on this PC.">
+  <title>Sweep — Windows cleanup console</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#view">Skip to content</a>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Workspace">
+      <a class="brand" href="#/dashboard" data-action="nav" data-route="dashboard" aria-label="Sweep dashboard">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M9 21.5c2.6 3.2 14 3.2 14-1.2 0-5.2-13-2.4-13-8 0-4 10.4-4.6 13.6-1.2" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>
+        </span>
+        <span class="brand-text">
+          <strong>Sweep</strong>
+          <span>cleanup console</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Sections">
+        <p class="nav-label">Workspace</p>
+        <a class="nav-item" href="#/dashboard" data-action="nav" data-route="dashboard" data-nav="dashboard">
+          <span class="nav-num">01</span><span class="nav-icon" data-icon="grid"></span><span class="nav-text">Dashboard</span>
+        </a>
+        <a class="nav-item" href="#/junk" data-action="nav" data-route="junk" data-nav="junk">
+          <span class="nav-num">02</span><span class="nav-icon" data-icon="broom"></span><span class="nav-text">Junk files</span>
+          <span class="nav-count" data-nav-count="junk" hidden></span>
+        </a>
+        <a class="nav-item" href="#/processes" data-action="nav" data-route="processes" data-nav="processes">
+          <span class="nav-num">03</span><span class="nav-icon" data-icon="cpu"></span><span class="nav-text">Processes</span>
+          <span class="nav-count" data-nav-count="processes" hidden></span>
+        </a>
+        <a class="nav-item" href="#/leftovers" data-action="nav" data-route="leftovers" data-nav="leftovers">
+          <span class="nav-num">04</span><span class="nav-icon" data-icon="folder-minus"></span><span class="nav-text">Leftovers</span>
+          <span class="nav-count" data-nav-count="leftovers" hidden></span>
+        </a>
+        <a class="nav-item" href="#/remover" data-action="nav" data-route="remover" data-nav="remover">
+          <span class="nav-num">05</span><span class="nav-icon" data-icon="search"></span><span class="nav-text">Program remover</span>
+        </a>
+        <a class="nav-item" href="#/quarantine" data-action="nav" data-route="quarantine" data-nav="quarantine">
+          <span class="nav-num">06</span><span class="nav-icon" data-icon="shield"></span><span class="nav-text">Quarantine</span>
+          <span class="nav-count" data-nav-count="quarantine" hidden></span>
+        </a>
+        <p class="nav-label">System</p>
+        <a class="nav-item" href="#/settings" data-action="nav" data-route="settings" data-nav="settings">
+          <span class="nav-num">07</span><span class="nav-icon" data-icon="settings"></span><span class="nav-text">Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="system-card" id="system-card">
+          <div class="system-row">
+            <span class="dot" id="admin-dot"></span>
+            <span id="admin-label">Checking access…</span>
+          </div>
+          <div class="system-row muted" id="mode-label">Quarantine mode</div>
+          <div class="system-row muted" id="version-label">Sweep</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <a class="topbar-brand" href="#/dashboard" data-action="nav" data-route="dashboard" aria-label="Sweep dashboard">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none"><path d="M9 21.5c2.6 3.2 14 3.2 14-1.2 0-5.2-13-2.4-13-8 0-4 10.4-4.6 13.6-1.2" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>
+            </span>
+            <span>Sweep</span>
+          </a>
+          <div class="crumbs"><span class="crumb-root">Workspace</span><span class="crumb-sep">/</span><span id="crumb">Dashboard</span></div>
+        </div>
+        <div class="topbar-actions">
+          <span class="local-pill"><i class="dot good" aria-hidden="true"></i>Local only</span>
+          <button class="btn btn-ghost btn-icon" data-action="refresh-all" title="Refresh data" aria-label="Refresh data">
+            <span data-icon="refresh"></span>
+          </button>
+          <button class="btn btn-ghost btn-icon" data-action="open-help" title="Help (?)" aria-label="Open help">
+            <span data-icon="help"></span>
+          </button>
+          <button class="btn btn-ghost btn-icon topbar-settings" data-action="nav" data-route="settings" title="Settings" aria-label="Open settings">
+            <span data-icon="settings"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="jobbar" id="jobbar" role="status" aria-live="polite" hidden>
+        <div class="jobbar-line"><span id="job-fill" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></span></div>
+        <div class="jobbar-inner">
+          <span class="spinner" aria-hidden="true"></span>
+          <div class="jobbar-text">
+            <div class="jobbar-title" id="job-title">Working…</div>
+            <div class="jobbar-msg" id="job-msg"></div>
+          </div>
+          <span class="jobbar-pct" id="job-pct" aria-hidden="true"></span>
+          <button class="btn btn-ghost btn-sm" data-action="cancel-job" aria-label="Cancel this job">Cancel</button>
+        </div>
+      </div>
+
+      <main class="view" id="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <nav class="mobilenav" aria-label="Sections">
+    <a href="#/dashboard" data-action="nav" data-route="dashboard" data-nav="dashboard">
+      <span data-icon="grid"></span><span>Dashboard</span>
+    </a>
+    <a href="#/junk" data-action="nav" data-route="junk" data-nav="junk">
+      <span data-icon="broom"></span><span>Junk</span>
+    </a>
+    <a href="#/processes" data-action="nav" data-route="processes" data-nav="processes">
+      <span data-icon="cpu"></span><span>Processes</span>
+    </a>
+    <a href="#/quarantine" data-action="nav" data-route="quarantine" data-nav="quarantine">
+      <span data-icon="shield"></span><span>Quarantine</span>
+    </a>
+    <button type="button" data-action="more">
+      <span data-icon="more"></span><span>More</span>
+    </button>
+  </nav>
+
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+  <div class="sr-only" id="route-status" role="status" aria-live="polite"></div>
+  <div id="modal-root"></div>
+
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

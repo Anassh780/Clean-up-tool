@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel
+        type: choice
+        options: [stable, beta]
+        default: stable
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: windows-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install psutil textual rich
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Read the package version and channel
+        id: version
+        shell: pwsh
+        run: |
+          $match = Select-String -Path sweep_app\__init__.py -Pattern '^__version__\s*=\s*"([^"]+)"' | Select-Object -First 1
+          if (-not $match) { throw "sweep_app/__init__.py has no __version__ stamp." }
+          $version = $match.Matches[0].Groups[1].Value
+          $channel = "${{ inputs.channel }}"
+          if (-not $channel) {
+            $channel = if ($version -match '-') { "beta" } else { "stable" }
+          }
+          Write-Host "version=$version channel=$channel"
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "channel=$channel" >> $env:GITHUB_OUTPUT
+
+      - name: Check that the tag matches the package version
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        run: |
+          $expected = "v${{ steps.version.outputs.version }}"
+          if ($env:GITHUB_REF_NAME -ne $expected) {
+            throw "Tag $env:GITHUB_REF_NAME does not match __version__ ($expected). Bump the version or retag."
+          }
+
+      - name: Build the release zip and latest.json
+        shell: pwsh
+        run: |
+          $buildArgs = @(
+            "tools/build_release.py",
+            "--channel", "${{ steps.version.outputs.channel }}",
+            "--manifest-url", "https://github.com/${{ github.repository }}/releases/latest/download/latest.json",
+            "--homepage", "https://github.com/${{ github.repository }}",
+            "--verify"
+          )
+          if (Test-Path CHANGELOG.md) { $buildArgs += @("--notes-file", "CHANGELOG.md") }
+          python @buildArgs
+
+      - name: Write the release body from the manifest
+        shell: pwsh
+        run: |
+          $manifest = Get-Content dist\latest.json -Raw | ConvertFrom-Json
+          $manifest.notes | Set-Content release-notes.md -Encoding utf8
+
+      - name: Publish the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Sweep ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          prerelease: ${{ steps.version.outputs.channel == 'beta' }}
+          fail_on_unmatched_files: true
+          files: |
+            dist/Sweep-*.zip
+            dist/latest.json

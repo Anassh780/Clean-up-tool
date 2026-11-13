@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sweep-cleanup"
+description = "Sweep — a local Windows cleanup console with a terminal UI and a local web UI."
+readme = "README.md"
+requires-python = ">=3.10"
+# Keep these in step with vendor/: the portable release ships exactly these
+# libraries, so an installed copy should resolve to the same major versions.
+dependencies = [
+    "psutil>=7.0,<8",
+    "textual>=8.0,<9",
+    "rich>=15.0,<16",
+]
+dynamic = ["version"]
+classifiers = [
+    "Environment :: Console",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+
+[project.scripts]
+sweep = "sweep_app.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/OWNER/REPO"
+
+[tool.setuptools.dynamic]
+# Single source of truth: sweep_app/__init__.py defines __version__.
+version = { attr = "sweep_app.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sweep_app*"]
+exclude = ["tests*", "tools*", "vendor*"]
+
+[tool.setuptools.package-data]
+# The web UI is three static files and the TUI theme is a .tcss file. Without
+# these patterns a wheel install would start and then fail to find its assets.
+"sweep_app.web" = ["assets/*"]
+"sweep_app.ui" = ["style.tcss"]

@@ -1,0 +1,40 @@
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd.tmp
+*.egg-info/
+.eggs/
+
+# Release and PyInstaller output
+dist/
+build/
+*.spec.bak
+sweep_app/_build_info.py
+release-notes.md
+
+# Tooling caches
+.build-cache/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local QA scratch: generated screenshots, probe scripts and reports
+qa/
+
+# Logs and local runtime state
+*.log
+update-status.json
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
