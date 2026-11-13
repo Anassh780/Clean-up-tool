@@ -190,3 +190,14 @@ def record_check(result: dict[str, Any]) -> None:
     section["last_status"] = str(result.get("status") or "")
     section["last_result"] = copy.deepcopy(result)
     save(current)
+
+
+def clear_check() -> None:
+    """Forget the cached answer, e.g. just before an update replaces this build."""
+    current = load()
+    section = current["updates"]
+    section["last_check"] = 0.0
+    section["last_version"] = ""
+    section["last_status"] = ""
+    section["last_result"] = {}
+    save(current)

@@ -208,6 +208,16 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual(prefs["last_version"], "2.0.0")
             self.assertEqual(prefs["last_status"], "available")
 
+    def test_clear_check(self):
+        with temp_home():
+            config.record_check({"checked_at": 123.0, "latest": "2.0.0", "status": "available"})
+            config.clear_check()
+            prefs = config.updates()
+            self.assertEqual(prefs["last_check"], 0.0)
+            self.assertEqual(prefs["last_version"], "")
+            self.assertEqual(prefs["last_status"], "")
+            self.assertEqual(prefs["last_result"], {})
+
 
 # --------------------------------------------------------------------------- #
 # manifest parsing
@@ -374,6 +384,33 @@ class CheckTests(unittest.TestCase):
             second = updates.check(manifest_url=url)
             self.assertTrue(second.cached)
             self.assertEqual(second.latest, "99.0.0")
+
+    def test_cache_from_a_replaced_version_is_not_used(self):
+        with temp_home():
+            # A check cached by 0.9.0 must not survive into this build.
+            config.set_updates(
+                {
+                    "last_check": time.time(),
+                    "last_status": updates.STATUS_AVAILABLE,
+                    "last_result": {
+                        "status": updates.STATUS_AVAILABLE,
+                        "current": "0.9.0",
+                        "latest": "99.0.0",
+                        "checked_at": time.time(),
+                    },
+                }
+            )
+            body = json.dumps(
+                {
+                    "version": updates.__version__,
+                    "url": "https://e/x.zip",
+                    "sha256": "1" * 64,
+                }
+            ).encode()
+            with served({"/latest.json": (200, body, "application/json")}) as base:
+                result = updates.check(manifest_url=f"{base}/latest.json")
+            self.assertFalse(result.cached)
+            self.assertEqual(result.status, updates.STATUS_UP_TO_DATE)
 
 
 class RedirectSafetyTests(unittest.TestCase):

@@ -562,7 +562,15 @@ def check(
     if not force and interval:
         last = float(prefs.get("last_check") or 0.0)
         cached = _cached_result(prefs)
-        if cached is not None and last and (now - last) < interval:
+        # A result cached by the version we just replaced must not outlive the
+        # update, or the fresh copy keeps showing "1.1.0 -> 1.1.1" for six
+        # hours and offers the same update again.
+        if (
+            cached is not None
+            and cached.current == __version__
+            and last
+            and (now - last) < interval
+        ):
             cached.cached = True
             return cached
 
@@ -976,6 +984,9 @@ def apply(
     }
     plan_path.parent.mkdir(parents=True, exist_ok=True)
     plan_path.write_text(json.dumps(plan, indent=2), encoding="utf-8")
+    # The next launch is a different version; a cached "available" answer from
+    # this one must not be shown as if the update had not happened.
+    config.clear_check()
 
     helper = Path(__file__).with_name("updater.py")
     cmd = [_helper_interpreter(), str(helper), "--plan", str(plan_path)]

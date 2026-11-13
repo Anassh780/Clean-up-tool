@@ -4,6 +4,15 @@ All notable changes to Sweep are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 `MAJOR.MINOR.PATCH` versions with `-beta.N` / `-rc.N` prereleases.
 
+## 1.1.2 — 2026-11-13
+
+### Fixed
+
+- **The update card clears after an install.** A check cached by the version
+  that was just replaced is now ignored when the running version changes, so a
+  freshly updated copy no longer shows the old "available" card (and offers the
+  same update again) until the six-hour cache expires.
+
 ## 1.1.1 — 2026-11-13
 
 ### Changed
